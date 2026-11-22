@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#eaf4f3">
+  <meta name="description" content="SkyScout Pro combines live weather, global maps, air quality, forecasts and weather-aware trip planning.">
+  <title>SkyScout Pro — Weather & Travel Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#" aria-label="SkyScout home"><span class="brand-icon">☁</span><span><b>SkyScout <i>Pro</i></b><small>WEATHER • TRAVEL • INSIGHTS</small></span></a>
+    <div class="side-label">WORKSPACE</div>
+    <nav class="nav">
+      <button class="nav-link active" data-view="overview"><span>⌂</span>Overview</button>
+      <button class="nav-link" data-view="world"><span>◎</span>World map</button>
+      <button class="nav-link" data-view="forecast"><span>☼</span>Forecast</button>
+      <button class="nav-link" data-view="trips"><span>✈</span>Trip planner</button>
+      <button class="nav-link" data-view="alerts"><span>⚑</span>Weather alerts <em id="alertBadge">0</em></button>
+      <button class="nav-link" data-view="insights"><span>▥</span>Insights & reports</button>
+    </nav>
+    <div class="side-label tools-label">PREFERENCES</div>
+    <nav class="nav"><button class="nav-link" data-view="settings"><span>⚙</span>Settings & help</button></nav>
+    <div class="sidebar-tip"><div class="tip-icon">✦</div><b>Travel with confidence</b><p>Understand the sky before you set out.</p><button data-view="trips">Plan a journey →</button></div>
+    <div class="profile"><div class="avatar">S</div><div><b>SkyScout Explorer</b><small>Personal workspace</small></div><span class="online-dot"></span></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
+      <div class="crumb"><span>Workspace</span><b>/</b><strong id="pageName">Overview</strong></div>
+      <form class="search" id="searchForm"><span>⌕</span><input id="placeInput" placeholder="Search any city or country…" autocomplete="off" aria-label="Search a city"><button>Search</button><div id="searchSuggestions" class="search-suggestions" hidden></div></form>
+      <div class="top-actions"><button class="unit-toggle" id="unitBtn" title="Switch temperature units">°C</button><button class="icon-btn" id="locBtn" title="Use my location">◎</button><div class="live"><i></i> LIVE DATA</div></div>
+    </header>
+
+    <section class="view active" id="view-overview">
+      <div class="welcome-row"><div><div class="eyebrow">YOUR WEATHER COMPANION</div><h1>Good day, explorer <span>✦</span></h1><p>Clear weather information. Smarter plans. Safer journeys.</p></div><div class="date-chip" id="todayDate">Loading date…</div></div>
+      <div class="hero-grid">
+        <article class="hero-weather card">
+          <div class="hero-top"><div><span class="eyebrow light">CURRENT CONDITIONS</span><h2 id="heroPlace">Finding your sky…</h2><p id="heroCountry">Search for any place in the world</p></div><div class="weather-emoji" id="heroIcon">🌤️</div></div>
+          <div class="temp-row"><strong id="heroTemp">--°</strong><div><b id="heroDesc">Loading weather</b><small>Feels like <span id="heroFeels">--°</span></small></div></div>
+          <div class="hero-stats">
+            <div><span>💧</span><small>Humidity</small><b id="heroHumidity">--%</b></div>
+            <div><span>🌬️</span><small>Wind</small><b id="heroWind">-- km/h</b></div>
+            <div><span>🌧️</span><small>Rain today</small><b id="heroRain">-- mm</b></div>
+            <div><span>☀️</span><small>UV index</small><b id="heroUv">--</b></div>
+          </div>
+          <div class="hero-foot"><span id="updatedText">Weather information from Open-Meteo</span><div class="hero-actions"><button id="refreshWeather">↻ Refresh</button><button data-view="forecast">See full forecast →</button></div></div>
+        </article>
+        <article class="welcome-card card"><div class="welcome-art">🌤️</div><span class="eyebrow">PLAN AHEAD, TRAVEL BETTER</span><h2>Your next journey<br>starts with the forecast.</h2><p>Compare destinations, check travel dates and prepare for changing weather.</p><button class="primary-btn" data-view="trips">Plan my trip <span>→</span></button><div class="welcome-note">Simple guidance for every explorer.</div></article>
+      </div>
+      <div class="section-head"><div><span class="eyebrow">AT A GLANCE</span><h2>Weather this week</h2><p>Daily highs, lows and rain chances for your selected location.</p></div><button class="text-btn" data-view="forecast">Full forecast →</button></div>
+      <div class="forecast-strip" id="miniForecast"><div class="loading-card">Loading the forecast…</div></div><article class="card hourly-card"><div class="card-head"><div><span class="eyebrow">THE NEXT HOURS</span><h3>Today, hour by hour</h3><p>See how the weather may change during the day.</p></div><span class="soft-pill">Live forecast</span></div><div id="hourlyForecast" class="hourly-strip"><span class="subtle">Loading hourly forecast…</span></div></article>
+      <div class="dashboard-grid">
+        <article class="card map-card"><div class="card-head"><div><span class="eyebrow">EXPLORE THE PLANET</span><h3>Weather around the world</h3></div><button class="text-btn" data-view="world">Open world map →</button></div><div id="miniMap" class="map mini-map"></div><div class="map-legend"><span><i class="legend-dot sunny"></i> Clear</span><span><i class="legend-dot cloud"></i> Cloudy</span><span><i class="legend-dot rain"></i> Rain</span><span>Map by OpenStreetMap</span></div></article>
+        <article class="card summary-card"><div class="card-head"><div><span class="eyebrow">HEALTHIER OUTDOOR PLANS</span><h3>Air quality</h3></div><span class="soft-pill" id="aqiBadge">Checking…</span></div><div class="aqi-number"><strong id="aqiValue">--</strong><span>US AQI</span><div class="aqi-face" id="aqiFace">🍃</div></div><p id="aqiText">Air quality information will appear here.</p><div class="meter"><span id="aqiMeter"></span></div><div class="small-note">Air-quality data is provided separately from the weather forecast.</div></article>
+      </div>
+      <div class="bottom-grid">
+        <article class="card advice-card"><div class="card-head"><div><span class="eyebrow">SMART TRAVEL ASSISTANT</span><h3>Weather-based suggestions</h3></div><span>✦</span></div><div id="quickAdvice" class="tip-list"><p>Preparing helpful tips…</p></div></article>
+        <article class="card quick-card"><span class="eyebrow">QUICK DESTINATIONS</span><h3>Check another place</h3><p>Try a popular destination or search any city.</p><div class="destination-chips"><button data-city="Hyderabad">Hyderabad</button><button data-city="Goa">Goa</button><button data-city="Manali">Manali</button><button data-city="Tokyo">Tokyo</button><button data-city="London">London</button><button data-city="Singapore">Singapore</button></div></article>
+      </div>
+    </section>
+
+    <section class="view" id="view-world">
+      <div class="view-heading"><div><span class="eyebrow">GLOBAL EXPLORER</span><h1>World weather map</h1><p>Choose a place on the map or search a city to see its weather.</p></div><span class="soft-pill">Interactive map</span></div>
+      <div class="card world-card"><div class="map-toolbar"><div><b>Live location view</b><small>Tap any point on the map to explore nearby weather.</small></div><div class="map-actions"><button id="mapHome" class="secondary-btn">⌖ My selected place</button><button id="mapWorld" class="secondary-btn">◎ World view</button></div></div><div id="worldMap" class="map world-map"></div><div class="map-legend"><span><i class="legend-dot sunny"></i> Clear</span><span><i class="legend-dot cloud"></i> Cloudy</span><span><i class="legend-dot rain"></i> Rain / showers</span><span>Map tiles © OpenStreetMap contributors</span></div></div>
+      <div class="world-cities" id="worldCities"></div>
+    </section>
+
+    <section class="view" id="view-forecast">
+      <div class="view-heading"><div><span class="eyebrow">PLAN WITH CONFIDENCE</span><h1>Weather forecast</h1><p>Understand each day at a glance. Temperatures are shown as high / low.</p></div><span class="soft-pill" id="forecastPlaceLabel">Selected location</span></div>
+      <div class="card"><div class="card-head"><div><h3>Next 7 days</h3><p>Forecast details for your selected destination.</p></div><div class="forecast-tools"><span class="subtle" id="forecastUpdated"></span><button id="forecastRefresh" class="secondary-btn">↻ Update</button></div></div><div class="forecast-table-wrap"><table class="forecast-table"><thead><tr><th>DAY</th><th>WEATHER</th><th>HIGH / LOW</th><th>RAIN CHANCE</th><th>WIND</th><th>UV</th></tr></thead><tbody id="forecastRows"></tbody></table></div></div>
+      <div class="dashboard-grid forecast-extra"><article class="card"><div class="card-head"><div><span class="eyebrow">TEMPERATURE</span><h3>Daily temperature range</h3></div></div><div id="tempChart" class="bar-chart"></div></article><article class="card"><div class="card-head"><div><span class="eyebrow">RAIN WATCH</span><h3>Chance of rain</h3></div></div><div id="rainChart" class="bar-chart rain-bars"></div></article></div>
+    </section>
+
+    <section class="view" id="view-trips">
+      <div class="view-heading"><div><span class="eyebrow">WEATHER-AWARE JOURNEY BUILDER</span><h1>Plan your trip</h1><p>Compare a destination's forecast with your travel dates before you go.</p></div><span class="soft-pill">Smart trip guide</span></div>
+      <div class="trip-layout"><article class="card trip-form-card"><div class="card-head"><div><h3>Journey details</h3><p>Enter where you want to go and when.</p></div><span>✈</span></div><form id="tripForm" class="trip-form"><label>Starting location<input id="tripFrom" value="Hyderabad" required placeholder="e.g. Hyderabad"></label><label>Destination<input id="tripTo" value="Goa" required placeholder="e.g. Goa"></label><div class="form-two"><label>Departure date<input id="tripDate" type="date" required></label><label>Return date<input id="returnDate" type="date"></label></div><label>Travel style<select id="tripStyle"><option value="relaxed">Relaxed sightseeing</option><option value="adventure">Outdoor adventure</option><option value="family">Family trip</option><option value="business">Business travel</option></select></label><button class="primary-btn full-btn">Check my trip conditions →</button></form><p class="small-note">Forecast availability is limited to the date range supported by the weather provider. Longer trips use available forecast data only.</p></article><article class="card trip-results" id="tripResults"><div class="empty-trip"><div>🧭</div><h3>Your trip report will appear here</h3><p>Fill in your destination and dates, then select “Check my trip conditions”.</p></div></article></div>
+      <article class="card packing-card"><div class="card-head"><div><span class="eyebrow">GET READY</span><h3>Packing checklist</h3><p>Tick each item as you pack it.</p></div><span id="packCount" class="soft-pill">0 packed</span></div><div id="packingList" class="packing-grid"></div></article>
+    </section>
+
+    <section class="view" id="view-alerts">
+      <div class="view-heading"><div><span class="eyebrow">STAY WEATHER-AWARE</span><h1>Weather alerts</h1><p>Simple warnings generated from forecast conditions for your selected place.</p></div><span class="soft-pill" id="alertSummary">Checking conditions…</span></div>
+      <div id="alertList" class="alert-list"></div><div class="card alert-note"><b>Important safety note</b><p>These are automatic weather indicators, not official emergency warnings. Always follow your local meteorological department and emergency services.</p></div>
+    </section>
+
+    <section class="view" id="view-insights">
+      <div class="view-heading"><div><span class="eyebrow">MAKE DATA EASY TO UNDERSTAND</span><h1>Insights & reports</h1><p>A simple summary of temperature, rain, wind and air quality.</p></div><button id="printReport" class="secondary-btn">Print report ⤓</button></div>
+      <div class="report-stats" id="reportStats"></div><div class="dashboard-grid"><article class="card"><span class="eyebrow">WEEKLY TEMPERATURE</span><h3>How warm will it be?</h3><div id="insightTemp" class="bar-chart"></div></article><article class="card"><span class="eyebrow">WEEKLY RAIN CHANCE</span><h3>Will it rain?</h3><div id="insightRain" class="bar-chart rain-bars"></div></article></div><article class="card report-summary" id="reportSummary"><h3>Your easy-to-read report</h3><p>Search a location to create a weather report.</p></article>
+    </section>
+
+    <section class="view" id="view-settings">
+      <div class="view-heading"><div><span class="eyebrow">MAKE IT YOURS</span><h1>Settings & help</h1><p>Simple controls and clear explanations.</p></div></div>
+      <div class="settings-grid"><article class="card"><h3>Display preferences</h3><div class="setting-row"><div><b>Temperature unit</b><small>Choose Celsius or Fahrenheit.</small></div><button class="secondary-btn" id="unitSetting">Celsius (°C)</button></div><div class="setting-row"><div><b>Last searched location</b><small id="savedPlace">Not set</small></div><button class="secondary-btn" id="clearSaved">Clear saved place</button></div></article><article class="card"><h3>How to understand the dashboard</h3><div class="help-list"><p><b>Temperature:</b> High is the warmest expected temperature; low is the coolest.</p><p><b>Rain chance:</b> The chance of measurable rain during the day.</p><p><b>Humidity:</b> How much water vapour is in the air.</p><p><b>Wind:</b> How fast the air is moving.</p><p><b>UV index:</b> A guide to the strength of the sun's ultraviolet rays.</p><p><b>US AQI:</b> An air-quality index; a lower number generally means cleaner air.</p></div></article><article class="card"><h3>Data sources & privacy</h3><p class="body-copy">SkyScout uses Open-Meteo weather, geocoding and air-quality services, plus OpenStreetMap map tiles. No API key is needed for this educational version. Your last location and preferences are stored only in this browser.</p><p class="body-copy">Location access is optional. If you choose “Use my location”, your browser asks for permission. SkyScout does not send your precise location to a personal account.</p></article></div>
+    </section>
+    <footer class="footer"><b>SkyScout Pro</b><span>Understand the weather. Explore with care.</span><small>Weather: Open-Meteo · Map: OpenStreetMap · Forecasts are estimates, not emergency alerts.</small></footer>
+  </main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="app.js"></script>
+</body></html>

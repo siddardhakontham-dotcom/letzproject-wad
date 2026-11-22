@@ -1,0 +1,1 @@
+Educational project starter. Check the licenses and terms of each third-party service and library used by this project before redistribution or commercial deployment.
